@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Sharing Application</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .file-link {
+            margin-top: 20px;
+            display: block;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .file-link:hover {
+            text-decoration: underline;
+        }
+        .file-upload-form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-center">File Sharing Application</h1>
+        <p class="text-center">Upload your files securely and get a link to share them.</p>
+
+        <!-- File Upload Form -->
+        <div class="file-upload-form">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="fileInput">Choose a file to upload</label>
+                    <input type="file" class="form-control" id="fileInput" name="file" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Upload</button>
+            </form>
+        </div>
+
+        <!-- Display uploaded files -->
+        <div id="uploadedFiles">
+            <h3>Uploaded Files:</h3>
+            <div id="fileList"></div>
+        </div>
+    </div>
+
+    <!-- Include jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Handle file upload form submission
+        $('#uploadForm').on('submit', function(e) {
+            e.preventDefault();
+    
+            const formData = new FormData();
+            formData.append('file', $('#fileInput')[0].files[0]);
+    
+            // Upload the file to the server
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    const fileLink = `<a href="${response.filePath}" class="file-link" target="_blank">${response.filePath}</a>`;
+                    $('#fileList').append(fileLink);
+    
+                    // Display the QR code
+                    const qrCodeImg = `<img src="${response.qrCodeUrl}" alt="QR Code" class="qr-code">`;
+                    $('#fileList').append(qrCodeImg);
+                    
+                    $('#fileInput').val('');  // Clear the file input
+                },
+                error: function() {
+                    alert('Error uploading file.');
+                }
+            });
+        });
+    </script>
+    
+
+</body>
+</html>
